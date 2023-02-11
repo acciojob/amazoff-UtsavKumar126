@@ -67,11 +67,11 @@ public class OrderRepository {
         DeliveryPartner curr=null;
         for(DeliveryPartner d:deliveryPartners){
             if(d.getId().equals(partnerId)) {
-                curr = d;
-                break;
+                return d;
             }
         }
-        return curr;
+        //return curr;
+        return null;
     }
 
     public Integer getOrderCountByPartnerId(String partnerId) {
@@ -107,14 +107,8 @@ public class OrderRepository {
     }
 
     public Integer getCountOfUnassignedOrders() {
-        int count=0;
-        for(DeliveryPartner d:orderSet.keySet()){
-            List<Order>orderList=orderSet.get(d);
-            for(Order o:orderList){
-                count++;
-            }
-        }
-        return orders.size()-count;
+
+        return orders.size()-orderDeliveryPartnerMap.size();
     }
 
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
@@ -160,8 +154,7 @@ public class OrderRepository {
         DeliveryPartner partner=null;
         for(DeliveryPartner d:orderSet.keySet()){
             if(d.getId().equals(partnerId)){
-                partner=d;
-                break;
+                orderSet.remove(d);
             }
         }
         for(DeliveryPartner d:orderDeliveryPartnerMap.keySet()){
@@ -190,7 +183,7 @@ public class OrderRepository {
         }
         for(DeliveryPartner d:orderDeliveryPartnerMap.keySet()){
             if(orderDeliveryPartnerMap.get(d).equals(removed)){
-                orderDeliveryPartnerMap.remove(removed);
+                orderDeliveryPartnerMap.remove(d);
             }
         }
         return "removed successfully";
