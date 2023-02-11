@@ -18,24 +18,24 @@ public class OrderRepository {
         this.orderDeliveryPartnerMap = new HashMap<>();
     }
 
-    public String addOrder(Order order) {
+    public void addOrder(Order order) {
 
         orders.add(order);
-        return "New order added successfully";
+        //return "New order added successfully";
     }
 
-    public String addPartner(String partnerId) {
+    public void addPartner(String partnerId) {
 
         deliveryPartners.add(new DeliveryPartner(partnerId));
-        return "New delivery partner added successfully";
+        //return "New delivery partner added successfully";
     }
 
-    public String addOrderPartnerPair(String orderId, String partnerId) {
-        Order add=null;
+    public void addOrderPartnerPair(String orderId, String partnerId) {
+        Order order=null;
         DeliveryPartner partner=null;
         for(Order o:orders){
             if(o.getId().equals(orderId)){
-                add=o;
+                order=o;
                 break;
             }
         }
@@ -47,26 +47,24 @@ public class OrderRepository {
         }
         if(orderSet.containsKey(partner)){
             List<Order>current=orderSet.get(partner);
-            current.add(add);
+            current.add(order);
             orderSet.put(partner, (ArrayList<Order>) current);
         }
         else{
             orderSet.put(partner,new ArrayList<>());
-            orderSet.get(partner).add(add);
+            orderSet.get(partner).add(order);
         }
-        orderDeliveryPartnerMap.put(partner,add);
-        return "New order-partner pair added successfully";
+        //orderDeliveryPartnerMap.put(partner,add);
+        //return "New order-partner pair added successfully";
     }
 
     public Order getOrderById(String orderId) {
-        Order curr=null;
         for(Order o:orders){
             if(o.getId().equals(orderId)) {
-                curr = o;
-                break;
+                return o;
             }
         }
-        return curr;
+        return null;
     }
 
     public DeliveryPartner getPartnerById(String partnerId) {
@@ -76,18 +74,16 @@ public class OrderRepository {
                 return d;
             }
         }
-        //return curr;
         return null;
     }
 
     public Integer getOrderCountByPartnerId(String partnerId) {
-        int orderSize=0;
         for(DeliveryPartner d:orderSet.keySet()){
             if(d.getId().equals(partnerId)){
-                orderSize=orderSet.get(d).size();
+                return orderSet.get(d).size();
             }
         }
-        return orderSize;
+        return 0;
     }
 
     public List<String> getOrdersByPartnerId(String partnerId) {
@@ -114,20 +110,30 @@ public class OrderRepository {
 
     public Integer getCountOfUnassignedOrders() {
 
-        return orders.size()-orderDeliveryPartnerMap.size();
+        int count=0;
+        for(DeliveryPartner d:orderSet.keySet()){
+            List<Order>orderList=orderSet.get(d);
+            count+=orderList.size();
+        }
+
+        return orders.size()-count;
     }
 
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
         int count=0;
         String arr[]=time.split(":");
-        int hrs=Integer.valueOf(arr[0]);
-        int min=Integer.valueOf(arr[1]);
+        int hrs=Integer.parseInt(arr[0]);
+        int min=Integer.parseInt(arr[1]);
         int orderTime=hrs*60+min;
-        for (DeliveryPartner d:orderDeliveryPartnerMap.keySet()){
+        List<Order>orderList=new ArrayList<>();
+        for(DeliveryPartner d:orderSet.keySet()){
             if(d.getId().equals(partnerId)){
-               if(orderDeliveryPartnerMap.get(d).getDeliveryTime()>orderTime){
-                    count++;
-                }
+                orderList=orderSet.get(d);
+            }
+        }
+        for(Order order:orderList){
+            if(order.getDeliveryTime()>orderTime){
+                count++;
             }
         }
         return count;
@@ -135,10 +141,14 @@ public class OrderRepository {
 
     public String getLastDeliveryTimeByPartnerId(String partnerId) {
         int lastdeliverytime=0;
-        for(DeliveryPartner d:orderDeliveryPartnerMap.keySet()){
+        List<Order>orderList=new ArrayList<>();
+        for(DeliveryPartner d:orderSet.keySet()){
             if(d.getId().equals(partnerId)){
-                lastdeliverytime=Math.max(orderDeliveryPartnerMap.get(d).getDeliveryTime(),lastdeliverytime);
+                orderList=orderSet.get(d);
             }
+        }
+        for(Order order:orderList){
+            lastdeliverytime=Math.max(lastdeliverytime,order.getDeliveryTime());
         }
         int hrs=lastdeliverytime/60;
         int min=lastdeliverytime%60;
@@ -156,31 +166,18 @@ public class OrderRepository {
             return hrs+":"+min;
         }
     }
-    public String deletePartnerById(String partnerId) {
+    public void  deletePartnerById(String partnerId) {
         DeliveryPartner partner=null;
         for(DeliveryPartner d:orderSet.keySet()){
             if(d.getId().equals(partnerId)){
+                partner=d;
                 orderSet.remove(d);
             }
         }
-        for(DeliveryPartner d:orderDeliveryPartnerMap.keySet()){
-            if(d.getId().equals(partnerId)){
-                orderDeliveryPartnerMap.remove(d);
-            }
-        }
-        orderSet.remove(partner);
         deliveryPartners.remove(partner);
-        return "removed successfully";
+       // return "removed successfully";
     }
-
-    public OrderRepository(Set<Order> orders, Set<DeliveryPartner> deliveryPartners, Map<DeliveryPartner, ArrayList<Order>> orderSet, Map<DeliveryPartner, Order> orderDeliveryPartnerMap) {
-        this.orders = orders;
-        this.deliveryPartners = deliveryPartners;
-        this.orderSet = orderSet;
-        this.orderDeliveryPartnerMap = orderDeliveryPartnerMap;
-    }
-
-    public String deleteOrderById(String orderId) {
+    public void deleteOrderById(String orderId) {
 
         Order removed=null;
         for(Order o:orders){
@@ -194,11 +191,6 @@ public class OrderRepository {
                 orderSet.get(d).remove(removed);
             }
         }
-        for(DeliveryPartner d:orderDeliveryPartnerMap.keySet()){
-            if(orderDeliveryPartnerMap.get(d).equals(removed)){
-                orderDeliveryPartnerMap.remove(d);
-            }
-        }
-        return "removed successfully";
+        //return "removed successfully";
     }
 }
