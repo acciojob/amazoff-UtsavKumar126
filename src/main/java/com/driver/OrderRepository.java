@@ -6,11 +6,17 @@ import java.util.*;
 
 @Repository
 public class OrderRepository {
-    Set<Order> orders=new HashSet<>();
-    Set<DeliveryPartner>deliveryPartners=new HashSet<>();
+    Set<Order> orders;
+    Set<DeliveryPartner>deliveryPartners;
 
-    Map<DeliveryPartner, ArrayList<Order>>orderSet=new HashMap<>();
-    Map<DeliveryPartner,Order>orderDeliveryPartnerMap=new HashMap<>();
+    Map<DeliveryPartner,ArrayList<Order>>orderSet;
+    Map<DeliveryPartner,Order>orderDeliveryPartnerMap;
+    public OrderRepository() {
+        this.orders = new HashSet<>();
+        this.deliveryPartners = new HashSet<>();
+        this.orderSet = new HashMap<>();
+        this.orderDeliveryPartnerMap = new HashMap<>();
+    }
 
     public String addOrder(Order order) {
 
@@ -165,6 +171,13 @@ public class OrderRepository {
         orderSet.remove(partner);
         deliveryPartners.remove(partner);
         return "removed successfully";
+    }
+
+    public OrderRepository(Set<Order> orders, Set<DeliveryPartner> deliveryPartners, Map<DeliveryPartner, ArrayList<Order>> orderSet, Map<DeliveryPartner, Order> orderDeliveryPartnerMap) {
+        this.orders = orders;
+        this.deliveryPartners = deliveryPartners;
+        this.orderSet = orderSet;
+        this.orderDeliveryPartnerMap = orderDeliveryPartnerMap;
     }
 
     public String deleteOrderById(String orderId) {
