@@ -144,12 +144,12 @@ public class OrderRepository {
 
     public void deletePartner(String partnerId) {
         DeliveryPartner deliveryPartner=deliveryPartnerMap.get(partnerId);
-        deliveryPartnerListMap.remove(deliveryPartner);
-        deliveryPartnerMap.remove(partnerId);
+        deliveryPartnerListMap.remove(deliveryPartner,deliveryPartnerListMap.get(deliveryPartner));
+        deliveryPartnerMap.remove(partnerId,deliveryPartner);
 
         for(String orderId:partnerOrderIdMap.keySet()){
             if(partnerOrderIdMap.get(orderId).equals(partnerId)){
-                partnerOrderIdMap.remove(orderId);
+                partnerOrderIdMap.remove(orderId,partnerId);
             }
         }
     }
@@ -160,8 +160,8 @@ public class OrderRepository {
         Order order=orderMap.get(orderId);
         DeliveryPartner deliveryPartner=deliveryPartnerMap.get(deliveryPartenerId);
 
-        orderMap.remove(orderId);
-        partnerOrderIdMap.remove(orderId);
+        orderMap.remove(orderId,order);
+        partnerOrderIdMap.remove(orderId,deliveryPartenerId);
 
         List<Order>orderList=deliveryPartnerListMap.get(deliveryPartner);
         for(Order order1:orderList){
